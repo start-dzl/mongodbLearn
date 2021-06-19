@@ -1,0 +1,9 @@
+
+logging:
+  level:
+    org.springframework.data.mongodb.core: debug
+spring:
+  data:
+    mongodb:
+      database: "learn"
+      host: 127.0.0.1
