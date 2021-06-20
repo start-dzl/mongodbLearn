@@ -1,6 +1,9 @@
 package com.dzl.mongodb.entity;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+
+import java.util.List;
 
 
 public class Person {
@@ -9,6 +12,9 @@ public class Person {
     private String id;
     private String name;
     private Integer age;
+
+    @DBRef
+    private List<Classt> classtes;
 
 
     public String getId() {
@@ -35,12 +41,22 @@ public class Person {
         this.age = age;
     }
 
+
+    public List<Classt> getClasstes() {
+        return classtes;
+    }
+
+    public void setClasstes(List<Classt> classtes) {
+        this.classtes = classtes;
+    }
+
     @Override
     public String toString() {
         return "Person{" +
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", age=" + age +
+                ", classtes=" + classtes +
                 '}';
     }
 }

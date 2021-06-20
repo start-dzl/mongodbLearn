@@ -1,6 +1,13 @@
 package com.dzl.mongodb.service;
 
+import com.dzl.mongodb.entity.Classt;
 import com.dzl.mongodb.entity.Person;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.List;
 
 public interface PersonService {
     void update(String name, Integer age);
@@ -10,4 +17,18 @@ public interface PersonService {
     void delete(String id);
 
     Person save(String name);
+
+    Person save(Person person, List<Classt> classts);
+
+    void saveAll(List<Person> persions);
+
+    Page<Person> page(String name, Pageable pageable);
+
+    Classt saveClasst(String name);
+
+    Person testTransactional(String name);
+
+    void storeFileToGridFs(String path) throws FileNotFoundException;
+
+    void findFilesInGridFs(String fileName) throws IOException;
 }
