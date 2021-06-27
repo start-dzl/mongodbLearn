@@ -2,10 +2,13 @@ package com.dzl.mongodb.entity;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.persistence.Entity;
 import java.util.List;
 
-
+@Document
+@Entity
 public class Person {
 
     @Id

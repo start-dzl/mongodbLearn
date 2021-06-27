@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @SpringBootApplication
 @EnableTransactionManagement
+@EnableMongoRepositories
 public class MongodbApplication {
 
 	public static void main(String[] args) {

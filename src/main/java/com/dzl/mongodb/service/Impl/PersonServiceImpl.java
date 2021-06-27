@@ -4,8 +4,11 @@ import com.dzl.mongodb.Repository.ClasstRepository;
 import com.dzl.mongodb.Repository.PersonRepository;
 import com.dzl.mongodb.entity.Classt;
 import com.dzl.mongodb.entity.Person;
+import com.dzl.mongodb.entity.QPerson;
 import com.dzl.mongodb.service.PersonService;
+import com.google.common.collect.Lists;
 import com.mongodb.client.gridfs.GridFSFindIterable;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,6 +41,8 @@ public class PersonServiceImpl implements PersonService {
 
     @Autowired
     private GridFsTemplate gridFsTemplate;
+
+    private QPerson qPerson = QPerson.person;
 
     @Override
     public void update(String name, Integer age) {
@@ -111,5 +116,12 @@ public class PersonServiceImpl implements PersonService {
         byte[] bytes = StreamUtils.copyToByteArray(stream);
         Path path = Paths.get("E:\\", fileName);
         Files.write(path, bytes);
+    }
+
+    @Override
+    public List<Person> findAllQueryDsl(String name, Integer age) {
+        BooleanExpression expression = qPerson.name.contains(name)
+                .or(qPerson.age.goe(age));
+       return Lists.newArrayList(personRepository.findAll(expression));
     }
 }

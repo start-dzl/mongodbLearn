@@ -16,8 +16,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
-@SpringBootTest
+@DataMongoTest
 class MongodbApplicationTests {
 
 	@Autowired
@@ -59,14 +60,7 @@ class MongodbApplicationTests {
 
 	@Test
 	void test3() {
-		List<Person> list = new ArrayList<>();
-		String name = "test";
-		for (int i = 0; i < 10; i++) {
-			Person person = new Person();
-			person.setName(name);
-			list.add(person);
-		}
-		personService.saveAll(list);
+		createBatch();
 
 		Page<Person> page = personService.page("es", PageRequest.of(0, 5));
 		System.out.println("getTotalElements == "+page.getTotalElements());
@@ -103,14 +97,33 @@ class MongodbApplicationTests {
 		personService.storeFileToGridFs("E:\\IMG_0602.JPG");
 	}
 
-	@Test
-	void test7() throws FileNotFoundException {
-		personService.storeFileToGridFs("E:\\IMG_0602.JPG");
-	}
 
 	@Test
 	void test8() throws IOException {
 		personService.findFilesInGridFs("602.JPG");
+	}
+
+	@Test
+	void test9() throws IOException {
+		createBatch();
+		List<Person> content = personService.findAllQueryDsl("te", 5);
+		for (Person person : content) {
+			System.out.println("person == "+person);
+		}
+	}
+
+	private void createBatch() {
+		Random random = new Random();
+		List<Person> list = new ArrayList<>();
+		String name = "test";
+		for (int i = 0; i < 10; i++) {
+			Person person = new Person();
+			person.setName(name);
+			person.setAge(random.nextInt(50));
+			list.add(person);
+		}
+		personService.saveAll(list);
+
 	}
 
 
