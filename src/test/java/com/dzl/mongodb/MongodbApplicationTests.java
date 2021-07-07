@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-@DataMongoTest
+@SpringBootTest
 class MongodbApplicationTests {
 
 	@Autowired

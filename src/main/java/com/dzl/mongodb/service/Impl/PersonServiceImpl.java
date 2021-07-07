@@ -91,7 +91,6 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
-    @Transactional
     public Person testTransactional(String name) {
         Classt classt = new Classt(name);
         classtRepository.save(classt);
