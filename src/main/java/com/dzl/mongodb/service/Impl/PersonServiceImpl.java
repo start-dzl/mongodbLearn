@@ -22,13 +22,9 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
-import static org.springframework.data.mongodb.core.query.Query.query;
-import static org.springframework.data.mongodb.gridfs.GridFsCriteria.whereFilename;
 
 @Service
 public class PersonServiceImpl implements PersonService {
@@ -99,7 +95,7 @@ public class PersonServiceImpl implements PersonService {
     public Person testTransactional(String name) {
         Classt classt = new Classt(name);
         classtRepository.save(classt);
-        throw new NullPointerException();
+       return null;
     }
 
     @Override
