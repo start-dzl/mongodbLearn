@@ -31,4 +31,6 @@ public interface PersonService {
     void storeFileToGridFs(String path) throws FileNotFoundException;
 
     void findFilesInGridFs(String fileName) throws IOException;
+
+    List<Person> findAllQueryDsl(String name, Integer age);
 }

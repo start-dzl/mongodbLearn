@@ -7,20 +7,13 @@ import org.springframework.data.mongodb.MongoTransactionManager;
 import org.springframework.data.mongodb.ReactiveMongoTransactionManager;
 import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
 
-/*
 @Configuration
-public class Config extends AbstractMongoClientConfiguration {
-    static final String DB_NAME = "spring-data-tx-examples";
+public class Config {
     @Bean
     MongoTransactionManager transactionManager(MongoDatabaseFactory dbFactory) {
         return new MongoTransactionManager(dbFactory);
     }
 
-    @Override
-    protected String getDatabaseName() {
-        return DB_NAME;
-    }
 
     // ...
 }
-*/
