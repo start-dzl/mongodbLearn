@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 public interface PersonService {
     void update(String name, Integer age);
@@ -33,4 +34,7 @@ public interface PersonService {
     void findFilesInGridFs(String fileName) throws IOException;
 
     List<Person> findAllQueryDsl(String name, Integer age);
+
+    void saveMap(String str) throws IOException;
+    List<Map> getMap(String str) throws IOException;
 }

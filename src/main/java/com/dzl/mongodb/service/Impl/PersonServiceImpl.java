@@ -12,6 +12,10 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.CriteriaDefinition;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.gridfs.GridFsResource;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.stereotype.Service;
@@ -22,7 +26,9 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 
@@ -38,12 +44,15 @@ public class PersonServiceImpl implements PersonService {
     @Autowired
     private GridFsTemplate gridFsTemplate;
 
+    @Autowired
+    private MongoTemplate mongoTemplate;
+
     private QPerson qPerson = QPerson.person;
 
     @Override
     public void update(String name, Integer age) {
         Optional<Person> first = personRepository.findFirstByName(name);
-        if(first.isPresent()) {
+        if (first.isPresent()) {
             Person person = first.get();
             person.setAge(age);
             personRepository.save(person);
@@ -58,7 +67,7 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public void delete(String id) {
-         personRepository.deleteById(id);
+        personRepository.deleteById(id);
     }
 
     @Override
@@ -94,7 +103,7 @@ public class PersonServiceImpl implements PersonService {
     public Person testTransactional(String name) {
         Classt classt = new Classt(name);
         classtRepository.save(classt);
-       return null;
+        return null;
     }
 
     @Override
@@ -117,6 +126,20 @@ public class PersonServiceImpl implements PersonService {
     public List<Person> findAllQueryDsl(String name, Integer age) {
         BooleanExpression expression = qPerson.name.contains(name)
                 .or(qPerson.age.goe(age));
-       return Lists.newArrayList(personRepository.findAll(expression));
+        return Lists.newArrayList(personRepository.findAll(expression));
+    }
+
+    @Override
+    public void saveMap(String str) throws IOException {
+        Map<String, String> map = new HashMap<>();
+        map.put("_id", str);
+        map.put("id", str);
+        mongoTemplate.save(map, "wjm");
+    }
+
+    @Override
+    public List<Map> getMap(String str) throws IOException {
+        Query query = Query.query(Criteria.where("_id").is(str));
+        return mongoTemplate.find(query, Map.class, "wjm");
     }
 }

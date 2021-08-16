@@ -16,6 +16,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 @SpringBootTest
@@ -110,6 +111,12 @@ class MongodbApplicationTests {
 		for (Person person : content) {
 			System.out.println("person == "+person);
 		}
+	}
+
+	@Test
+	void test10() throws IOException {
+		personService.saveMap("dfs");
+		List<Map> map = personService.getMap("2");
 	}
 
 	private void createBatch() {
