@@ -138,6 +138,14 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
+    public void saveMap(List<HashMap<String, String>> hashMaps) {
+        for (HashMap<String, String> hashMap : hashMaps) {
+            mongoTemplate.save(hashMap, "excelt");
+        }
+
+    }
+
+    @Override
     public List<Map> getMap(String str) throws IOException {
         Query query = Query.query(Criteria.where("_id").is(str));
         return mongoTemplate.find(query, Map.class, "wjm");

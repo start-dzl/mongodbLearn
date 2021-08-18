@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -36,5 +37,6 @@ public interface PersonService {
     List<Person> findAllQueryDsl(String name, Integer age);
 
     void saveMap(String str) throws IOException;
+    void saveMap(List<HashMap<String, String>> hashMaps);
     List<Map> getMap(String str) throws IOException;
 }
