@@ -1,0 +1,13 @@
+part1: 0.25
+part2: 0.25
+part3: 0.25
+part4: 0.25
+part1Map:
+  A: 2
+  A+: 0
+part2Map:
+  1: 2
+  2: 0
+part3Map:
+  A: 2
+  A+: 0

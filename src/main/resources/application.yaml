@@ -7,3 +7,12 @@ spring:
     mongodb:
       database: "learn"
       host: 127.0.0.1
+  datasource:
+    url: jdbc:mysql://localhost:3306/MyUploader?serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: 1234
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    servlet:
+      multipart:
+        max-file-size: 10000MB
+        max-request-size: 100000MB
