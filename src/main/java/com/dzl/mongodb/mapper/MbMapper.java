@@ -15,4 +15,8 @@ public interface MbMapper {
     List<Map> getAll(String name);
 
     List<Map> getBySql(String sql);
+
+    void createNewTable(String tableName);
+
+    Integer existTable(String tableName);
 }
