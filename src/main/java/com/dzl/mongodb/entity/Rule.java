@@ -1,5 +1,6 @@
 package com.dzl.mongodb.entity;
 
+import java.util.List;
 import java.util.Map;
 
 public class Rule {
@@ -11,6 +12,7 @@ public class Rule {
     private Map<String, Integer> part1Map;
     private Map<Integer, Integer> part2Map;
     private Map<String, Integer> part3Map;
+    private Map<List<Integer>, Integer> part4Map;
 
     public Double getPart1() {
         return part1;
@@ -68,16 +70,12 @@ public class Rule {
         this.part3Map = part3Map;
     }
 
-    @Override
-    public String toString() {
-        return "Rule{" +
-                "part1=" + part1 +
-                ", part2=" + part2 +
-                ", part3=" + part3 +
-                ", part4=" + part4 +
-                ", part1Map=" + part1Map +
-                ", part2Map=" + part2Map +
-                ", part3Map=" + part3Map +
-                '}';
+
+    public Map<List<Integer>, Integer> getPart4Map() {
+        return part4Map;
+    }
+
+    public void setPart4Map(Map<List<Integer>, Integer> part4Map) {
+        this.part4Map = part4Map;
     }
 }

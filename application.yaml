@@ -11,3 +11,7 @@ part2Map:
 part3Map:
   A: 2
   A+: 0
+
+part4Map:
+  [1, 2]: 2
+  [6]: 8

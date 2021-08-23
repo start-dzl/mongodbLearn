@@ -7,6 +7,8 @@ import com.dzl.mongodb.entity.Classt;
 import com.dzl.mongodb.entity.Person;
 import com.dzl.mongodb.entity.Rule;
 import com.dzl.mongodb.service.PersonService;
+import com.google.common.collect.Lists;
+import io.swagger.models.auth.In;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -81,6 +83,11 @@ class YamlTests {
 		Integer integer = part1Map.get(2);
 		System.out.printf(integer.toString());
 		System.out.printf(person.toString());
+
+//		HashMap<List<Integer>, Integer> hashMap = new HashMap<>();
+//		ArrayList<Integer> list = Lists.newArrayList(1, 2);
+//		hashMap.put(list, 2);
+//		person.setPart4Map(hashMap);
 		String dump = yaml.dump(person);
 		System.out.printf(dump);
 	}
