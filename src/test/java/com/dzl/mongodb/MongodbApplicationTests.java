@@ -3,6 +3,7 @@ package com.dzl.mongodb;
 import com.dzl.mongodb.entity.Classt;
 import com.dzl.mongodb.entity.Person;
 import com.dzl.mongodb.service.PersonService;
+import com.mongodb.util.JSON;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.AutoConfigureDataMongo;
@@ -114,10 +115,24 @@ class MongodbApplicationTests {
 	}
 
 	@Test
-	void test10() throws IOException {
-		personService.saveMap("dfs");
-		List<Map> map = personService.getMap("2");
+	void test11() throws IOException {
+		createBatch();
+		List<Person> content = personService.findAllByTemplate("te", 5);
+		for (Person person : content) {
+			System.out.println("person == "+person);
+		}
 	}
+
+	@Test
+	void test10() throws IOException {
+		personService.saveMap("date");
+		List<Map> map = personService.getMap("date");
+		for (Map m : map) {
+			System.out.println(" == "+m);
+		}
+	}
+
+
 
 	private void createBatch() {
 		Random random = new Random();

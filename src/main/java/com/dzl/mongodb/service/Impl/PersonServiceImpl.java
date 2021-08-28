@@ -130,6 +130,13 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
+    public List<Person> findAllByTemplate(String name, Integer age) {
+        List<Person> people = mongoTemplate.find(Query.query(Criteria.where("name").regex(".*\\Qte\\E.*").and("age").gte(age)),
+                Person.class);
+        return people;
+    }
+
+    @Override
     public void saveMap(String str) throws IOException {
         Map<String, String> map = new HashMap<>();
         map.put("_id", str);
