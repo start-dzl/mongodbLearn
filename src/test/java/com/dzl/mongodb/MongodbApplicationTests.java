@@ -133,6 +133,11 @@ class MongodbApplicationTests {
 	}
 
 
+	@Test
+	void test12mo() throws IOException {
+		personService.lookUp();
+
+	}
 
 	private void createBatch() {
 		Random random = new Random();
@@ -142,6 +147,7 @@ class MongodbApplicationTests {
 			Person person = new Person();
 			person.setName(name);
 			person.setAge(random.nextInt(50));
+			person.setClassname("一班");
 			list.add(person);
 		}
 		personService.saveAll(list);

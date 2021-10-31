@@ -38,7 +38,10 @@ public interface PersonService {
     List<Person> findAllByTemplate(String name, Integer age);
 
     void saveMap(String str) throws IOException;
+
     List<Map> getMap(String str) throws IOException;
 
+    List<Map> simLookUp();
 
+    List<Map> lookUp();
 }

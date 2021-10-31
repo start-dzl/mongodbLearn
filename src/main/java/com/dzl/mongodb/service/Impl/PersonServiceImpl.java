@@ -6,13 +6,21 @@ import com.dzl.mongodb.entity.Classt;
 import com.dzl.mongodb.entity.Person;
 import com.dzl.mongodb.entity.QPerson;
 import com.dzl.mongodb.service.PersonService;
+import com.dzl.mongodb.util.LookupLetPipelinesOperation;
+import com.dzl.mongodb.util.LookupSimLetPipelinesOperation;
 import com.google.common.collect.Lists;
 import com.mongodb.client.gridfs.GridFSFindIterable;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import org.reflections.Reflections;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.FacetOperation;
+import org.springframework.data.mongodb.core.aggregation.GroupOperation;
+import org.springframework.data.mongodb.core.aggregation.LookupOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.CriteriaDefinition;
 import org.springframework.data.mongodb.core.query.Query;
@@ -26,10 +34,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 
 @Service
@@ -148,5 +153,92 @@ public class PersonServiceImpl implements PersonService {
     public List<Map> getMap(String str) throws IOException {
         Query query = Query.query(Criteria.where("_id").is(str));
         return mongoTemplate.find(query, Map.class, "wjm");
+    }
+
+    @Override
+    public List<Map> simLookUp() {
+        LookupSimLetPipelinesOperation operation = new LookupSimLetPipelinesOperation("{\n" +
+                "  from: 't_person',\n" +
+                "  let: { classt_name: \"$name\" },\n" +
+                "  pipeline:[\n" +
+                "    {\n" +
+                "      $group:\n" +
+                "      {\n" +
+                "      _id: '$classname',\n" +
+                "      ages: {\n" +
+                "        $sum: \"$age\"\n" +
+                "      },\n" +
+                "       classname: {\n" +
+                "        $first: \"$classname\"\n" +
+                "      }\n" +
+                "      } \n" +
+                "      \n" +
+                "    },\n" +
+                "    { $match: \n" +
+                "    { $expr:\n" +
+                "                    { $and:\n" +
+                "                       [\n" +
+                "                         { $eq: [ '$classname',  \"$$classt_name\" ] },\n" +
+                "                         { $gte: [ '$ages', 35 ] }\n" +
+                "                       ]\n" +
+                "                    }\n" +
+                "    }\n" +
+                "                 }\n" +
+                "\n" +
+                "    ],\n" +
+                "  as: 'string'\n" +
+                "}");
+        /* FacetOperation facets = Aggregation.facet();*/
+        Aggregation aggregation = Aggregation.newAggregation(
+                /* Aggregation.match(Criteria.where("_id").is("")),*/
+                Aggregation.limit(1),
+                Aggregation.skip(1l),
+                // 获取 MessageId对应的from&to，根据这两个id进行多条件连接
+                // 多条件连接
+                operation
+               /* Aggregation.unwind("ms"),
+                Aggregation.project()
+                        .and("ms._id").as("_id")
+                        .and("ms.from").as("from")
+                        .and("ms.to").as("to")
+                        .and("ms.content").as("content")
+                        .and("ms.property_id").as("property_id")
+                        .and("ms.created_at").as("created_at")
+                        .and("ms.updated_at").as("updated_at"),*/
+               /* facets,
+                Aggregation.unwind("introduction"),
+                Aggregation.addFields().addField("introduction").withValue("$introduction.share_title").build()*/
+        );
+        List<Map> resultList = mongoTemplate.aggregate(aggregation, "classt", Map.class).getMappedResults();
+        return resultList;
+    }
+
+    @Override
+    public List<Map> lookUp() {
+
+        String group = " $group: { _id: '$classname', ages: { $sum: '$age'},classname: { $first: '$classname' } } ";
+        String match = " $match: { $expr: { $and: [ { $eq: [ '$classname',  '$$classt_name'] }, { $gte: [ '$ages', 35 ] } ]}}";
+        LookupLetPipelinesOperation letPipelineLookup = LookupLetPipelinesOperation.LookupLetPipelinesOperation()
+                .from("t_person")
+                .let("classt_name: \"$name\"")
+                .pipelines(Arrays.asList(group, match))
+                .as("ms")
+                .build();
+        Aggregation aggregation = Aggregation.newAggregation(
+                Aggregation.limit(1),
+                // 获取 MessageId对应的from&to，根据这两个id进行多条件连接
+                // 多条件连接
+                letPipelineLookup
+        );
+        List<Map> resultList = mongoTemplate.aggregate(aggregation, "classt", Map.class).getMappedResults();
+
+        return resultList;
+
+    }
+
+    private Set<Class<? extends Object>> getTestClass() {
+        Reflections reflections = new Reflections("类所在包名");
+        //返回带有指定注解的所有类对象
+        return reflections.getTypesAnnotatedWith(Configuration.class);
     }
 }

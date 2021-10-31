@@ -15,6 +15,7 @@ public class Person {
     private String id;
     private String name;
     private Integer age;
+    private String classname;
 
     @DBRef
     private List<Classt> classtes;
@@ -61,5 +62,13 @@ public class Person {
                 ", age=" + age +
                 ", classtes=" + classtes +
                 '}';
+    }
+
+    public String getClassname() {
+        return classname;
+    }
+
+    public void setClassname(String classname) {
+        this.classname = classname;
     }
 }

@@ -1,5 +1,6 @@
 package com.dzl.mongodb.controller;
 
+import com.dzl.mongodb.service.Impl.PService;
 import com.dzl.mongodb.service.PersonService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -15,6 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class persionController {
 
     private static final Log log = LogFactory.getLog(persionController.class);
+
+    @Autowired
+    private PService pService;
 
     @Autowired
     private PersonService personService;
