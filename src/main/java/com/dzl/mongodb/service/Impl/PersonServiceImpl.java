@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Optional;
 
 
+
 @Service
 public class PersonServiceImpl implements PersonService {
 
@@ -131,7 +132,7 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public List<Person> findAllByTemplate(String name, Integer age) {
-        List<Person> people = mongoTemplate.find(Query.query(Criteria.where("name").regex(".*\\Qte\\E.*").and("age").gte(age)),
+        List<Person> people = mongoTemplate.find(Query.query(Criteria.where("name").regex(".*\\Qte\\E.*")),
                 Person.class);
         return people;
     }

@@ -116,7 +116,7 @@ class MongodbApplicationTests {
 
 	@Test
 	void test11() throws IOException {
-		createBatch();
+		//createBatch();
 		List<Person> content = personService.findAllByTemplate("te", 5);
 		for (Person person : content) {
 			System.out.println("person == "+person);
