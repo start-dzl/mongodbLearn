@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @SpringBootTest
 class MongodbApplicationTests {
@@ -138,6 +140,21 @@ class MongodbApplicationTests {
 		personService.lookUp();
 
 	}
+
+	@Test
+	void test123() throws IOException {
+		String reg = "\\w\\d+$";
+		String str = "1d3s32d号3房2间1233";
+		Pattern pa = Pattern.compile(reg, Pattern.DOTALL);
+		Matcher matcher = pa.matcher(str);
+		if(matcher.find()) {
+			String replaceAll = matcher.replaceAll("");
+			System.out.println(replaceAll);
+			System.out.println(str.replace(reg,""));
+		}
+
+	}
+
 
 	private void createBatch() {
 		Random random = new Random();
