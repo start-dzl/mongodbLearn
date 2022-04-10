@@ -4,6 +4,7 @@ import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.read.builder.ExcelReaderBuilder;
 import com.alibaba.fastjson.JSON;
 import com.dzl.mongodb.Listener.NoModleDataListener;
+import com.dzl.mongodb.entity.Car;
 import com.dzl.mongodb.entity.Classt;
 import com.dzl.mongodb.entity.Person;
 import com.dzl.mongodb.service.PersonService;
@@ -21,6 +22,8 @@ import org.springframework.util.Assert;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @SpringBootTest
@@ -137,12 +140,23 @@ class MongodbApplicationTests {
 		List<Map<Integer, String>> listMap = builder.sheet().doReadSync();
 		Map<Integer, String> map = dataListener.head;
 		rebuild(map);
-		List<HashMap<String, String>> hashMaps = new ArrayList<>();
+		List<HashMap<String, Object>> hashMaps = new ArrayList<>();
 		for (Map<Integer, String> data : listMap) {
 			// 返回每条数据的键值对 表示所在的列 和所在列的值
-			HashMap<String, String> hashMap = new HashMap<>();
-			data.forEach((integer, s) ->
-							hashMap.put(map.get(integer), s)
+			HashMap<String, Object> hashMap = new HashMap<>();
+			data.forEach((integer, s) ->{
+						String s1 = map.get(integer);
+						Object sv = s;
+						if("CREATE_TIME".equals(s1)) {
+							SimpleDateFormat sdf =   new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
+							try {
+								sv = sdf.parse(s);
+							} catch (ParseException e) {
+								e.printStackTrace();
+							}
+						}
+						hashMap.put(map.get(integer), sv);
+					}
 					 );
 			hashMap.put("_id",data.get(0));
 			hashMaps.add(hashMap);
@@ -167,6 +181,17 @@ class MongodbApplicationTests {
 		String writefileName ="/Users/dengzuliang/Desktop/febs_cloud_base_t_menu1.xlsx";
 		Object[] values = map.values().toArray();
 		EasyExcel.write(writefileName).head(head(values)).sheet("模板").doWrite(dataList(values, maps));
+
+	}
+
+	@Test
+	public void  testsim() {
+		List<Car> maps = mongoTemplate.findAll(Car.class, "excelt");
+
+		for (Car map : maps) {
+			System.out.println(map.toString());
+		}
+
 
 	}
 

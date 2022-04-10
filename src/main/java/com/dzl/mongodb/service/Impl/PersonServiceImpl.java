@@ -7,19 +7,16 @@ import com.dzl.mongodb.entity.Person;
 import com.dzl.mongodb.entity.QPerson;
 import com.dzl.mongodb.service.PersonService;
 import com.google.common.collect.Lists;
-import com.mongodb.client.gridfs.GridFSFindIterable;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.CriteriaDefinition;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.gridfs.GridFsResource;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StreamUtils;
 
 import java.io.*;
@@ -138,8 +135,8 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
-    public void saveMap(List<HashMap<String, String>> hashMaps) {
-        for (HashMap<String, String> hashMap : hashMaps) {
+    public void saveMap(List<HashMap<String, Object>> hashMaps) {
+        for (HashMap<String, Object> hashMap : hashMaps) {
             mongoTemplate.save(hashMap, "excelt");
         }
 

@@ -37,6 +37,6 @@ public interface PersonService {
     List<Person> findAllQueryDsl(String name, Integer age);
 
     void saveMap(String str) throws IOException;
-    void saveMap(List<HashMap<String, String>> hashMaps);
+    void saveMap(List<HashMap<String, Object>> hashMaps);
     List<Map> getMap(String str) throws IOException;
 }
