@@ -3,9 +3,11 @@ package com.dzl.mongodb;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.read.builder.ExcelReaderBuilder;
 import com.alibaba.fastjson.JSON;
+import com.dzl.mongodb.Listener.NoModleDataListener;
 import com.dzl.mongodb.entity.Classt;
 import com.dzl.mongodb.entity.Person;
 import com.dzl.mongodb.service.PersonService;
+import com.dzl.mongodb.util.Pinyin4jUtil;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,7 @@ import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.util.Assert;
 
 import java.io.FileNotFoundException;
@@ -25,6 +28,9 @@ class MongodbApplicationTests {
 
 	@Autowired
 	private PersonService personService;
+
+	@Autowired
+	private MongoTemplate mongoTemplate;
 
 	@Test
 	void test1() {
@@ -122,13 +128,15 @@ class MongodbApplicationTests {
 
 	@Test
 	public void synchronousRead() {
-		String fileName ="E:\\ex.xlsx";
+		String fileName ="/Users/dengzuliang/Desktop/febs_cloud_base_t_menu.xlsx";
 
 		// 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
-		ExcelReaderBuilder builder = EasyExcel.read(fileName);
+		NoModleDataListener dataListener = new NoModleDataListener();
+		ExcelReaderBuilder builder = EasyExcel.read(fileName, dataListener);
+		//builder.ignoreEmptyRow(true);
 		List<Map<Integer, String>> listMap = builder.sheet().doReadSync();
-		Map<Integer, String> map = listMap.get(0);
-		listMap.remove(map);
+		Map<Integer, String> map = dataListener.head;
+		rebuild(map);
 		List<HashMap<String, String>> hashMaps = new ArrayList<>();
 		for (Map<Integer, String> data : listMap) {
 			// 返回每条数据的键值对 表示所在的列 和所在列的值
@@ -141,6 +149,60 @@ class MongodbApplicationTests {
 			System.out.println("读取到数据:{}"+ JSON.toJSONString(hashMap));
 		}
 		personService.saveMap(hashMaps);
+	}
+
+	@Test
+	public void  testpy() {
+		List<Map> maps = mongoTemplate.findAll(Map.class, "excelt");
+		String fileName ="/Users/dengzuliang/Desktop/febs_cloud_base_t_menu.xlsx";
+
+		// 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
+		NoModleDataListener dataListener = new NoModleDataListener();
+		ExcelReaderBuilder builder = EasyExcel.read(fileName, dataListener);
+		//builder.ignoreEmptyRow(true);
+		List<Map<Integer, String>> listMap = builder.sheet().doReadSync();
+		Map<Integer, String> map = dataListener.head;
+		rebuild(map);
+
+		String writefileName ="/Users/dengzuliang/Desktop/febs_cloud_base_t_menu1.xlsx";
+		Object[] values = map.values().toArray();
+		EasyExcel.write(writefileName).head(head(values)).sheet("模板").doWrite(dataList(values, maps));
+
+	}
+
+	private List<List<String>> head(Object[] values) {
+		List<List<String>> list = new ArrayList<List<String>>();
+		for (int i = 0; i < values.length; i++) {
+			String value = values[i].toString();
+			List<String> head0 = new ArrayList<String>();
+			head0.add(value);
+			list.add(head0);
+		}
+		return list;
+	}
+
+	private List<List<Object>> dataList(Object[] values, List<Map> maps) {
+		List<List<Object>> list = new ArrayList<List<Object>>();
+		for (int i = 0; i < maps.size(); i++) {
+			List<Object> data = new ArrayList<Object>();
+			Map map = maps.get(i);
+			for (int j = 0; j < values.length; j++) {
+				Object value = values[j];
+				Object o = map.get(value);
+				data.add(o);
+			}
+			list.add(data);
+		}
+		return list;
+	}
+
+	private void rebuild(Map<Integer, String> map) {
+		for (Integer integer : map.keySet()) {
+			String headName = map.get(integer);
+			String converter = Pinyin4jUtil.firstConverterToSpell(headName);
+			map.put(integer, converter);
+		}
+
 	}
 
 	private void createBatch() {
