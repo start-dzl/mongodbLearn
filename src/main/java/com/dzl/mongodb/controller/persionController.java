@@ -6,13 +6,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
 
+import java.util.List;
+import java.util.Map;
 
 
 @Validated
-@RestController
+@RestController("/persion")
 public class persionController {
 
     private static final Log log = LogFactory.getLog(persionController.class);
@@ -23,11 +26,30 @@ public class persionController {
     @Autowired
     private PersonService personService;
 
-    @GetMapping("test")
+    @GetMapping("/test")
     public String list(String name) {
         personService.testTransactional(name);
         return "ok";
     }
 
+    @GetMapping("/excel")
+    @CrossOrigin
+    public Map<String, Object> excel() {
+        return personService.excelShow();
+    }
+
+    @PostMapping("/rule")
+    public String rule(@RequestBody Rule rule) {
+        Yaml yaml = new Yaml(new Constructor(Rule.class));
+        Double aDouble = rule.getPart1();
+        System.out.printf(aDouble.toString());
+        Map<Integer, Integer> part1Map = rule.getPart2Map();
+        Integer integer = part1Map.get(2);
+        System.out.printf(integer.toString());
+        System.out.printf(rule.toString());
+        String dump = yaml.dump(rule);
+        System.out.printf(dump);
+        return dump;
+    }
 
 }
