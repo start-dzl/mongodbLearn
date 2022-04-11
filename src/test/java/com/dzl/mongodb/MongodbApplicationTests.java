@@ -6,11 +6,11 @@ import com.alibaba.fastjson.JSON;
 import com.dzl.mongodb.Listener.NoModleDataListener;
 import com.dzl.mongodb.entity.Car;
 import com.dzl.mongodb.entity.Classt;
+import com.dzl.mongodb.entity.Head;
 import com.dzl.mongodb.entity.Person;
 import com.dzl.mongodb.service.PersonService;
 import com.dzl.mongodb.util.Pinyin4jUtil;
 import org.json.JSONObject;
-import com.mongodb.util.JSON;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.AutoConfigureDataMongo;
@@ -172,7 +172,7 @@ class MongodbApplicationTests {
 
 	@Test
 	public void synchronousRead() {
-		String fileName ="D:\\Desktop\\t_menu.xlsx";
+		String fileName =".\\testFile\\t_menu.xlsx";
 
 		// 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
 		NoModleDataListener dataListener = new NoModleDataListener();
@@ -189,7 +189,7 @@ class MongodbApplicationTests {
 						String s1 = map.get(integer);
 						Object sv = s;
 						if("CREATE_TIME".equals(s1)) {
-							SimpleDateFormat sdf =   new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
+							SimpleDateFormat sdf =   new SimpleDateFormat( "yyyy/MM/dd HH:mm:ss" );
 							try {
 								sv = sdf.parse(s);
 							} catch (ParseException e) {
@@ -200,6 +200,7 @@ class MongodbApplicationTests {
 					}
 					 );
 			hashMap.put("_id",data.get(0));
+			hashMap.put("dept",(int)(1+Math.random()*10));
 			hashMaps.add(hashMap);
 			System.out.println("读取到数据:{}"+ JSON.toJSONString(hashMap));
 		}
@@ -209,19 +210,20 @@ class MongodbApplicationTests {
 	@Test
 	public void  testpy() {
 		List<Map> maps = mongoTemplate.findAll(Map.class, "excelt");
-		String fileName ="D:\\Desktop\\t_menu.xlsx";
-
-		// 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
-		NoModleDataListener dataListener = new NoModleDataListener();
-		ExcelReaderBuilder builder = EasyExcel.read(fileName, dataListener);
-		//builder.ignoreEmptyRow(true);
-		List<Map<Integer, String>> listMap = builder.sheet().doReadSync();
-		Map<Integer, String> map = dataListener.head;
-		rebuild(map);
-
+//		String fileName =".\\testFile\\t_menu.xlsx";
+//
+//		// 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
+//		NoModleDataListener dataListener = new NoModleDataListener();
+//		ExcelReaderBuilder builder = EasyExcel.read(fileName, dataListener);
+//		//builder.ignoreEmptyRow(true);
+//		List<Map<Integer, String>> listMap = builder.sheet().doReadSync();
+//		Map<Integer, String> map = dataListener.head;
+//		rebuild(map);
+		List<Head> heads = personService.excelShowHead();
+		Object[] values = heads.stream().map(Head::getPinyin).toArray();
+		Object[] names = heads.stream().map(Head::getName).toArray();
 		String writefileName ="D:\\Desktop\\t_menu1.xlsx";
-		Object[] values = map.values().toArray();
-		EasyExcel.write(writefileName).head(head(values)).sheet("模板").doWrite(dataList(values, maps));
+		EasyExcel.write(writefileName).head(head(names)).sheet("模板").doWrite(dataList(values, maps));
 
 	}
 

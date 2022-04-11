@@ -1,6 +1,7 @@
 package com.dzl.mongodb.service;
 
 import com.dzl.mongodb.entity.Classt;
+import com.dzl.mongodb.entity.Head;
 import com.dzl.mongodb.entity.Person;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -48,5 +49,7 @@ public interface PersonService {
     List<Map> lookUp();
 
 
-    Map<String, Object> excelShow();
+    Map<String, Object> excelShow(String fildName, String fildValue);
+
+    List<Head> excelShowHead();
 }

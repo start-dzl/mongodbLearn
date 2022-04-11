@@ -1,5 +1,7 @@
 package com.dzl.mongodb.controller;
 
+import com.dzl.mongodb.entity.Head;
+import com.dzl.mongodb.entity.Rule;
 import com.dzl.mongodb.service.Impl.PService;
 import com.dzl.mongodb.service.PersonService;
 import org.apache.commons.logging.Log;
@@ -34,8 +36,16 @@ public class persionController {
 
     @GetMapping("/excel")
     @CrossOrigin
-    public Map<String, Object> excel() {
-        return personService.excelShow();
+    public Map<String, Object> excel(@RequestParam(required = false) String fildName,
+                                     @RequestParam(required = false) String fildvalue
+                                     ) {
+        return personService.excelShow(fildName, fildvalue);
+    }
+
+    @GetMapping("/excel/head")
+    @CrossOrigin
+    public List<Head> excelShowHead() {
+        return personService.excelShowHead();
     }
 
     @PostMapping("/rule")

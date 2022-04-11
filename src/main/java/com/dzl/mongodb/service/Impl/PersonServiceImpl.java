@@ -2,10 +2,14 @@ package com.dzl.mongodb.service.Impl;
 
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.read.builder.ExcelReaderBuilder;
+import com.alibaba.excel.read.listener.ModelBuildEventListener;
+import com.alibaba.excel.read.listener.PageReadListener;
+import com.alibaba.fastjson.JSON;
 import com.dzl.mongodb.Listener.NoModleDataListener;
 import com.dzl.mongodb.Repository.ClasstRepository;
 import com.dzl.mongodb.Repository.PersonRepository;
 import com.dzl.mongodb.entity.Classt;
+import com.dzl.mongodb.entity.Head;
 import com.dzl.mongodb.entity.Person;
 import com.dzl.mongodb.entity.QPerson;
 import com.dzl.mongodb.service.PersonService;
@@ -16,6 +20,7 @@ import com.google.common.collect.Lists;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import org.reflections.Reflections;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,12 +35,16 @@ import org.springframework.data.mongodb.gridfs.GridFsResource;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StreamUtils;
+import org.springframework.util.StringUtils;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -52,6 +61,10 @@ public class PersonServiceImpl implements PersonService {
 
     @Autowired
     private MongoTemplate mongoTemplate;
+
+    @Autowired
+    @Qualifier("myMongoTemplate")
+    private MongoTemplate myMongoTemplate;
 
     private QPerson qPerson = QPerson.person;
 
@@ -252,24 +265,38 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
-    public Map<String, Object> excelShow() {
+    public Map<String, Object> excelShow(String fildName, String fildValue) {
         Map<String, Object> reTurnMap = new HashMap<>();
-        List<Map> maps = mongoTemplate.findAll(Map.class, "excelt");
-        String fileName ="D:\\Desktop\\t_menu.xlsx";
+        Query query = new Query();
+        if(!StringUtils.isEmpty(fildName) && !StringUtils.isEmpty(fildValue)) {
+            query.addCriteria(Criteria.where(fildName).regex(".*\\Q" + fildValue + "\\E.*"));
+        }
+        List<Map> maps = myMongoTemplate.find(query , Map.class, "excelt");
+        //String fileName =".\\testFile\\t_menu.xlsx";
 
         // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
-        NoModleDataListener dataListener = new NoModleDataListener();
-        ExcelReaderBuilder builder = EasyExcel.read(fileName, dataListener);
+//        NoModleDataListener dataListener = new NoModleDataListener();
+        //ExcelReaderBuilder builder = EasyExcel.read(fileName);
         //builder.ignoreEmptyRow(true);
-        List<Map<Integer, String>> listMap = builder.sheet().doReadSync();
-        Map<Integer, String> map = dataListener.head;
+        //List<Map<Integer, String>> listMap = builder.sheet().doReadSync();
+        List<Head> heads = excelShowHead();
 
-        List<Map<String, Object>> mapList = rebuild(map);
-        Object[] values = map.values().toArray();
+        Object[] values = heads.stream().map(Head::getPinyin).toArray();
         List<Map<String, Object>> list = dataList(values, maps);
         reTurnMap.put("data", list);
-        reTurnMap.put("head", mapList);
+        reTurnMap.put("head", heads);
         return reTurnMap;
+    }
+
+    @Override
+    public List<Head> excelShowHead() {
+        String fileName =".\\testFile\\t_menudand.xlsx";
+
+        // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
+        List<Head> heads = Lists.newArrayList();
+        EasyExcel.read(fileName,
+                Head.class, new PageReadListener<Head>(heads::addAll)).sheet().doRead();
+        return heads.stream().sorted(Comparator.comparing(Head::getOrder)).collect(Collectors.toList());
     }
 
 
