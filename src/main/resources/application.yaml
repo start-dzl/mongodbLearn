@@ -6,7 +6,7 @@ spring:
   data:
     mongodb:
       database: "learn"
-      host: 127.0.0.1
+      host: 47.101.169.172
   datasource:
     url: jdbc:mysql://localhost:3306/MyUploader?serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
     username: root
