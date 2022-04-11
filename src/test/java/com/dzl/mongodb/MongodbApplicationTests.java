@@ -131,7 +131,7 @@ class MongodbApplicationTests {
 
 	@Test
 	public void synchronousRead() {
-		String fileName ="/Users/dengzuliang/Desktop/febs_cloud_base_t_menu.xlsx";
+		String fileName ="D:\\Desktop\\t_menu.xlsx";
 
 		// 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
 		NoModleDataListener dataListener = new NoModleDataListener();
@@ -168,7 +168,7 @@ class MongodbApplicationTests {
 	@Test
 	public void  testpy() {
 		List<Map> maps = mongoTemplate.findAll(Map.class, "excelt");
-		String fileName ="/Users/dengzuliang/Desktop/febs_cloud_base_t_menu.xlsx";
+		String fileName ="D:\\Desktop\\t_menu.xlsx";
 
 		// 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
 		NoModleDataListener dataListener = new NoModleDataListener();
@@ -178,7 +178,7 @@ class MongodbApplicationTests {
 		Map<Integer, String> map = dataListener.head;
 		rebuild(map);
 
-		String writefileName ="/Users/dengzuliang/Desktop/febs_cloud_base_t_menu1.xlsx";
+		String writefileName ="D:\\Desktop\\t_menu1.xlsx";
 		Object[] values = map.values().toArray();
 		EasyExcel.write(writefileName).head(head(values)).sheet("模板").doWrite(dataList(values, maps));
 
@@ -193,6 +193,15 @@ class MongodbApplicationTests {
 		}
 
 
+	}
+
+	@Test
+	public void testpy4() {
+		String converter = Pinyin4jUtil.converterToSpell("蜜蜂");
+		System.out.println("蜜蜂" + converter);
+
+		String converter2 = Pinyin4jUtil.converterToSpell("密封");
+		System.out.println("密封" + converter2);
 	}
 
 	private List<List<String>> head(Object[] values) {

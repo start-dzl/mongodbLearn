@@ -1,11 +1,15 @@
 package com.dzl.mongodb.service.Impl;
 
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.read.builder.ExcelReaderBuilder;
+import com.dzl.mongodb.Listener.NoModleDataListener;
 import com.dzl.mongodb.Repository.ClasstRepository;
 import com.dzl.mongodb.Repository.PersonRepository;
 import com.dzl.mongodb.entity.Classt;
 import com.dzl.mongodb.entity.Person;
 import com.dzl.mongodb.entity.QPerson;
 import com.dzl.mongodb.service.PersonService;
+import com.dzl.mongodb.util.Pinyin4jUtil;
 import com.google.common.collect.Lists;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,10 +27,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 
 @Service
@@ -146,5 +147,57 @@ public class PersonServiceImpl implements PersonService {
     public List<Map> getMap(String str) throws IOException {
         Query query = Query.query(Criteria.where("_id").is(str));
         return mongoTemplate.find(query, Map.class, "wjm");
+    }
+
+    @Override
+    public Map<String, Object> excelShow() {
+        Map<String, Object> reTurnMap = new HashMap<>();
+        List<Map> maps = mongoTemplate.findAll(Map.class, "excelt");
+        String fileName ="D:\\Desktop\\t_menu.xlsx";
+
+        // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
+        NoModleDataListener dataListener = new NoModleDataListener();
+        ExcelReaderBuilder builder = EasyExcel.read(fileName, dataListener);
+        //builder.ignoreEmptyRow(true);
+        List<Map<Integer, String>> listMap = builder.sheet().doReadSync();
+        Map<Integer, String> map = dataListener.head;
+
+        List<Map<String, Object>> mapList = rebuild(map);
+        Object[] values = map.values().toArray();
+        List<Map<String, Object>> list = dataList(values, maps);
+        reTurnMap.put("data", list);
+        reTurnMap.put("head", mapList);
+        return reTurnMap;
+    }
+
+
+    private List<Map<String, Object>> dataList(Object[] values, List<Map> maps) {
+        List<Map<String, Object>> list = new ArrayList<>();
+        for (int i = 0; i < maps.size(); i++) {
+            Map<String, Object> data = new HashMap<>();
+            Map map = maps.get(i);
+            for (int j = 0; j < values.length; j++) {
+                Object value = values[j];
+                Object o = map.get(value);
+                data.put(value.toString(), o);
+            }
+            list.add(data);
+        }
+        return list;
+    }
+
+    private List<Map<String, Object>> rebuild(Map<Integer, String> map) {
+        List<Map<String, Object>> arrayList = new ArrayList<>();
+        for (Integer integer : map.keySet()) {
+            String headName = map.get(integer);
+            String converter = Pinyin4jUtil.firstConverterToSpell(headName);
+            map.put(integer, converter);
+            Map<String, Object> hashMap = new HashMap<>();
+            hashMap.put("name", headName);
+            hashMap.put("pinyin", converter);
+            hashMap.put("order", integer);
+            arrayList.add(hashMap);
+        }
+        return arrayList;
     }
 }

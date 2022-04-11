@@ -12,6 +12,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
+
+import java.util.List;
 import java.util.Map;
 
 
@@ -28,6 +30,11 @@ public class persionController {
     public String list(String name) {
         personService.testTransactional(name);
         return "ok";
+    }
+
+    @GetMapping("/excel")
+    public Map<String, Object> excel() {
+        return personService.excelShow();
     }
 
     @PostMapping("/rule")
