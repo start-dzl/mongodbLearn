@@ -2,6 +2,8 @@ package com.dzl.mongodb;
 
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.read.builder.ExcelReaderBuilder;
+import com.alibaba.excel.write.metadata.style.WriteCellStyle;
+import com.alibaba.excel.write.style.HorizontalCellStyleStrategy;
 import com.alibaba.fastjson.JSON;
 import com.dzl.mongodb.Listener.NoModleDataListener;
 import com.dzl.mongodb.entity.Car;
@@ -9,17 +11,16 @@ import com.dzl.mongodb.entity.Classt;
 import com.dzl.mongodb.entity.Head;
 import com.dzl.mongodb.entity.Person;
 import com.dzl.mongodb.service.PersonService;
+import com.dzl.mongodb.strategy.ExcelWidthStyleStrategy;
+import com.dzl.mongodb.util.EasyExcelUtil;
 import com.dzl.mongodb.util.Pinyin4jUtil;
-import org.json.JSONObject;
+import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.mongo.AutoConfigureDataMongo;
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.util.Assert;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -223,7 +224,14 @@ class MongodbApplicationTests {
 		Object[] values = heads.stream().map(Head::getPinyin).toArray();
 		Object[] names = heads.stream().map(Head::getName).toArray();
 		String writefileName ="D:\\Desktop\\t_menu1.xlsx";
-		EasyExcel.write(writefileName).head(head(names)).sheet("模板").doWrite(dataList(values, maps));
+		WriteCellStyle headWriteCellStyle = EasyExcelUtil.getHeadStyle();
+		HorizontalCellStyleStrategy horizontalCellStyleStrategy =
+				new HorizontalCellStyleStrategy(headWriteCellStyle, new WriteCellStyle());
+
+		EasyExcel.write(writefileName)
+				//.registerWriteHandler(new ExcelWidthStyleStrategy())
+				.registerWriteHandler(horizontalCellStyleStrategy)
+				.head(head(names)).sheet("模板").doWrite(dataList(values, maps));
 
 	}
 
@@ -274,10 +282,19 @@ class MongodbApplicationTests {
 	}
 
 	private void rebuild(Map<Integer, String> map) {
+
+		mongoTemplate.dropCollection( Head.class);
+		List<Head> heads = Lists.newArrayList();
 		for (Integer integer : map.keySet()) {
 			String headName = map.get(integer);
 			String converter = Pinyin4jUtil.firstConverterToSpell(headName);
 			map.put(integer, converter);
+			Head head = new Head();
+			head.setName(headName);
+			head.setPinyin(converter);
+			head.setOrder(integer);
+			heads.add(head);
+			mongoTemplate.save(head);
 		}
 
 	}

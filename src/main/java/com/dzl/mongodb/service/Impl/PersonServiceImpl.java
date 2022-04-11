@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.FacetOperation;
@@ -268,10 +269,10 @@ public class PersonServiceImpl implements PersonService {
     public Map<String, Object> excelShow(String fildName, String fildValue) {
         Map<String, Object> reTurnMap = new HashMap<>();
         Query query = new Query();
-        if(!StringUtils.isEmpty(fildName) && !StringUtils.isEmpty(fildValue)) {
+        if (!StringUtils.isEmpty(fildName) && !StringUtils.isEmpty(fildValue)) {
             query.addCriteria(Criteria.where(fildName).regex(".*\\Q" + fildValue + "\\E.*"));
         }
-        List<Map> maps = myMongoTemplate.find(query , Map.class, "excelt");
+        List<Map> maps = myMongoTemplate.find(query, Map.class, "excelt");
         //String fileName =".\\testFile\\t_menu.xlsx";
 
         // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
@@ -290,13 +291,17 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public List<Head> excelShowHead() {
-        String fileName =".\\testFile\\t_menudand.xlsx";
+        Query query = new Query();
+        query.with(Sort.by("order"));
+        return mongoTemplate.find(query, Head.class);
 
-        // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
-        List<Head> heads = Lists.newArrayList();
-        EasyExcel.read(fileName,
-                Head.class, new PageReadListener<Head>(heads::addAll)).sheet().doRead();
-        return heads.stream().sorted(Comparator.comparing(Head::getOrder)).collect(Collectors.toList());
+//        String fileName =".\\testFile\\t_menudand.xlsx";
+//
+//        // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
+//        List<Head> heads = Lists.newArrayList();
+//        EasyExcel.read(fileName,
+//                Head.class, new PageReadListener<Head>(heads::addAll)).sheet().doRead();
+//        return heads.stream().sorted(Comparator.comparing(Head::getOrder)).collect(Collectors.toList());
     }
 
 
