@@ -33,6 +33,7 @@ public class persionController {
     }
 
     @GetMapping("/excel")
+    @CrossOrigin
     public Map<String, Object> excel() {
         return personService.excelShow();
     }
