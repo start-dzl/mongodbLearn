@@ -16,8 +16,10 @@ import com.dzl.mongodb.service.PersonService;
 import com.dzl.mongodb.util.LookupLetPipelinesOperation;
 import com.dzl.mongodb.util.LookupSimLetPipelinesOperation;
 import com.dzl.mongodb.util.Pinyin4jUtil;
+import com.github.jsonzou.jmockdata.JMockData;
 import com.google.common.collect.Lists;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import org.apache.commons.lang3.StringUtils;
 import org.reflections.Reflections;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -36,7 +38,6 @@ import org.springframework.data.mongodb.gridfs.GridFsResource;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StreamUtils;
-import org.springframework.util.StringUtils;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -302,6 +303,35 @@ public class PersonServiceImpl implements PersonService {
 //        EasyExcel.read(fileName,
 //                Head.class, new PageReadListener<Head>(heads::addAll)).sheet().doRead();
 //        return heads.stream().sorted(Comparator.comparing(Head::getOrder)).collect(Collectors.toList());
+    }
+
+    @Override
+    public Map<String, Head> excelMapHead() {
+        Query query = new Query();
+        query.with(Sort.by("order"));
+        List<Head> heads = mongoTemplate.find(query, Head.class);
+        Map<String, Head> map = new HashMap<>();
+        for (Head head : heads) {
+            map.put(head.getPinyin(), head);
+        }
+        return map;
+    }
+
+    @Override
+    public Head saveAndUpdate(Head head) {
+
+        if (StringUtils.isBlank(head.getId())) {
+            if (StringUtils.isBlank(head.getName())) {
+                head.setName(JMockData.mock(String.class));
+            }
+
+            if (Objects.isNull(head.getOrder())) {
+                head.setOrder(JMockData.mock(Integer.class));
+            }
+            head.setPinyin(Pinyin4jUtil.firstConverterToSpell(head.getName()));
+        }
+
+        return mongoTemplate.save(head);
     }
 
 

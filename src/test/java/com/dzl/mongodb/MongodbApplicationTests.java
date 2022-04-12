@@ -13,8 +13,12 @@ import com.dzl.mongodb.entity.Person;
 import com.dzl.mongodb.service.PersonService;
 import com.dzl.mongodb.strategy.ExcelWidthStyleStrategy;
 import com.dzl.mongodb.util.EasyExcelUtil;
+import com.dzl.mongodb.util.OgnlUtil;
 import com.dzl.mongodb.util.Pinyin4jUtil;
+import com.github.jsonzou.jmockdata.JMockData;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.ognl.OgnlException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,6 +28,8 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -209,6 +215,49 @@ class MongodbApplicationTests {
 	}
 
 	@Test
+	public void synchronousReadNoHead() throws OgnlException {
+		String fileName =".\\testFile\\t_menu.xlsx";
+
+		// 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
+		NoModleDataListener dataListener = new NoModleDataListener();
+		ExcelReaderBuilder builder = EasyExcel.read(fileName, dataListener);
+		//builder.ignoreEmptyRow(true);
+		List<Map<Integer, String>> listMap = builder.sheet().doReadSync();
+		Map<Integer, String> map = dataListener.head;
+		rebuildNoSave(map);
+
+		Map<String, Head> headMap = personService.excelMapHead();
+
+		List<HashMap<String, Object>> hashMaps = new ArrayList<>();
+		for (Map<Integer, String> data : listMap) {
+			// 返回每条数据的键值对 表示所在的列 和所在列的值
+			HashMap<String, Object> hashMap = new HashMap<>();
+			data.forEach((integer, s) ->{
+						String s1 = map.get(integer);
+						Object sv = s;
+						if(s1.equals("leixing")||s1.equals("jine")) {
+							sv = Integer.parseInt(s);
+						}
+
+						hashMap.put(map.get(integer), sv);
+					}
+			);
+			hashMap.put("_id",data.get(0));
+			hashMap.put("dept",(int)(1+Math.random()*10));
+			for (Map.Entry<String, Head> headEntry : headMap.entrySet()) {
+				Head value = headEntry.getValue();
+				if(StringUtils.isNotBlank(value.getExpressions())){
+					Object value1 = OgnlUtil.getValue(value.getExpressions(), hashMap);
+					hashMap.put(headEntry.getKey(), value1);
+				}
+			}
+			hashMaps.add(hashMap);
+			System.out.println("读取到数据:{}"+ JSON.toJSONString(hashMap));
+		}
+		personService.saveMap(hashMaps);
+	}
+
+	@Test
 	public void  testpy() {
 		List<Map> maps = mongoTemplate.findAll(Map.class, "excelt");
 //		String fileName =".\\testFile\\t_menu.xlsx";
@@ -255,6 +304,24 @@ class MongodbApplicationTests {
 		System.out.println("密封" + converter2);
 	}
 
+	@Test
+	public void testMork() {
+
+        int intNum = JMockData.mock(int.class);
+        int[] intArray = JMockData.mock(int[].class);
+        Integer integer = JMockData.mock(Integer.class);
+        Integer[] integerArray = JMockData.mock(Integer[].class);
+        //常用类型模拟
+        BigDecimal bigDecimal = JMockData.mock(BigDecimal.class);
+        BigInteger bigInteger = JMockData.mock(BigInteger.class);
+        Date date = JMockData.mock(Date.class);
+        String str = JMockData.mock(String.class);
+        str = JMockData.mock(String.class);
+
+        Head head = JMockData.mock(Head.class);
+        System.out.printf(head.toString());
+    }
+
 	private List<List<String>> head(Object[] values) {
 		List<List<String>> list = new ArrayList<List<String>>();
 		for (int i = 0; i < values.length; i++) {
@@ -295,6 +362,16 @@ class MongodbApplicationTests {
 			head.setOrder(integer);
 			heads.add(head);
 			mongoTemplate.save(head);
+		}
+
+	}
+
+	private void rebuildNoSave(Map<Integer, String> map) {
+
+		for (Integer integer : map.keySet()) {
+			String headName = map.get(integer);
+			String converter = Pinyin4jUtil.firstConverterToSpell(headName);
+			map.put(integer, converter);
 		}
 
 	}

@@ -52,4 +52,8 @@ public interface PersonService {
     Map<String, Object> excelShow(String fildName, String fildValue);
 
     List<Head> excelShowHead();
+
+    Map<String, Head> excelMapHead();
+
+    Head saveAndUpdate(Head head);
 }

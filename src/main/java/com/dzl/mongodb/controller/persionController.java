@@ -18,6 +18,7 @@ import java.util.Map;
 
 @Validated
 @RestController("/persion")
+@CrossOrigin
 public class persionController {
 
     private static final Log log = LogFactory.getLog(persionController.class);
@@ -35,15 +36,19 @@ public class persionController {
     }
 
     @GetMapping("/excel")
-    @CrossOrigin
     public Map<String, Object> excel(@RequestParam(required = false) String fildName,
                                      @RequestParam(required = false) String fildvalue
                                      ) {
         return personService.excelShow(fildName, fildvalue);
     }
 
+
+    @PostMapping("/head")
+    public Head head(@RequestBody Head head) {
+        return  personService.saveAndUpdate(head);
+    }
+
     @GetMapping("/excel/head")
-    @CrossOrigin
     public List<Head> excelShowHead() {
         return personService.excelShowHead();
     }
