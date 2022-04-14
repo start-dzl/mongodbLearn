@@ -10,9 +10,13 @@ public class Classt {
     private String id;
     private String name;
 
+    private Double num;
 
     public Classt(String name) {
         this.name = name;
+    }
+
+    public Classt() {
     }
 
     public String getId() {
@@ -22,11 +26,29 @@ public class Classt {
         return name;
     }
 
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Double getNum() {
+        return num;
+    }
+
+    public void setNum(Double num) {
+        this.num = num;
+    }
+
     @Override
     public String toString() {
         return "Classt{" +
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
+                ", num=" + num +
                 '}';
     }
 }

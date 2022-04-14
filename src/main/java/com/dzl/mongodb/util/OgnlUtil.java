@@ -1,4 +1,5 @@
 package com.dzl.mongodb.util;
+import com.dzl.mongodb.entity.Classt;
 import com.googlecode.aviator.AviatorEvaluator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.ognl.*;
@@ -107,8 +108,12 @@ public class OgnlUtil {
         map.put("details", list);
         list.add("BPM1");
         list.add("BPM2");
-        System.out.println(OgnlUtil.getValue("(as eq null ? 2 : as )/(3.06+(as eq null ? 0 : as ))", map));
-        System.out.println(AviatorEvaluator.execute("(as==nil ? 2 : as )/(3.06+(as==nil ? 0 : as ))", map));
+        Classt classt = new Classt();
+        map.put("classt",classt);
+        System.out.println(OgnlUtil.getValue("a/(3.06+a)", map));
+        System.out.println(AviatorEvaluator.execute("g=a/(3.06+a)", map));
+        System.out.println(AviatorEvaluator.execute("classt.num=3", map));
+        System.out.println(classt.toString());
         System.out.println(OgnlUtil.getValue("a*0.75", map));
         System.out.println(OgnlUtil.getValue("(b eq null ? 0:b)+a", map));
         System.out.println(OgnlUtil.getValue("details[1]", map));
