@@ -8,10 +8,7 @@ import com.alibaba.fastjson.JSON;
 import com.dzl.mongodb.Listener.NoModleDataListener;
 import com.dzl.mongodb.Repository.ClasstRepository;
 import com.dzl.mongodb.Repository.PersonRepository;
-import com.dzl.mongodb.entity.Classt;
-import com.dzl.mongodb.entity.Head;
-import com.dzl.mongodb.entity.Person;
-import com.dzl.mongodb.entity.QPerson;
+import com.dzl.mongodb.entity.*;
 import com.dzl.mongodb.service.PersonService;
 import com.dzl.mongodb.util.LookupLetPipelinesOperation;
 import com.dzl.mongodb.util.LookupSimLetPipelinesOperation;
@@ -294,7 +291,42 @@ public class PersonServiceImpl implements PersonService {
     public List<Head> excelShowHead() {
         Query query = new Query();
         query.with(Sort.by("order"));
-        return mongoTemplate.find(query, Head.class);
+        List<Head> heads = mongoTemplate.find(query, Head.class);
+
+        for (Head head : heads) {
+            List<HeadExpress> expresses = head.getExpresses();
+            if (!Objects.isNull(expresses) && !expresses.isEmpty()) {
+                for (HeadExpress express : expresses) {
+                    if (!Objects.isNull(express.getExpressEnum())) {
+                        express.setName(express.getExpressEnum().getExpress());
+                        express.setPinyin(express.getExpressEnum().getExpress());
+                    } else if(StringUtils.isNotBlank(express.getId())){
+                        Head template = mongoTemplate.findById(express.getId(), Head.class);
+                        if (!Objects.isNull(template)) {
+                            express.setName(template.getName());
+                            express.setPinyin(template.getPinyin());
+                        }
+                    }
+                }
+                List<HeadExpress> collect = expresses.stream().filter(f ->
+                        StringUtils.isNotBlank(f.getPinyin()) || !Objects.isNull(f.getOrder()))
+                        .sorted(Comparator.comparing(HeadExpress::getOrder))
+                        .collect(Collectors.toList());
+
+                StringBuilder nameBuilder = new StringBuilder();
+                StringBuilder pyBuilder = new StringBuilder();
+                for (HeadExpress headExpress : collect) {
+                    nameBuilder.append(headExpress.getName());
+                    pyBuilder.append(headExpress.getPinyin());
+                }
+                head.setExpresses(collect);
+                head.setExpressions(pyBuilder.toString());
+                head.setShowExpressions(nameBuilder.toString());
+            }
+
+        }
+
+        return heads;
 
 //        String fileName =".\\testFile\\t_menudand.xlsx";
 //
@@ -307,9 +339,7 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public Map<String, Head> excelMapHead() {
-        Query query = new Query();
-        query.with(Sort.by("order"));
-        List<Head> heads = mongoTemplate.find(query, Head.class);
+        List<Head> heads = excelShowHead();
         Map<String, Head> map = new HashMap<>();
         for (Head head : heads) {
             map.put(head.getPinyin(), head);
@@ -329,6 +359,12 @@ public class PersonServiceImpl implements PersonService {
                 head.setOrder(JMockData.mock(Integer.class));
             }
             head.setPinyin(Pinyin4jUtil.firstConverterToSpell(head.getName()));
+        }
+        List<HeadExpress> expresses = head.getExpresses();
+        if (!Objects.isNull(expresses) && !expresses.isEmpty()) {
+            for (int i = 0; i < expresses.size(); i++) {
+                expresses.get(i).setOrder(i);
+            }
         }
 
         return mongoTemplate.save(head);

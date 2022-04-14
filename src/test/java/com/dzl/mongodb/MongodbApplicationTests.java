@@ -236,7 +236,7 @@ class MongodbApplicationTests {
 						String s1 = map.get(integer);
 						Object sv = s;
 						if(s1.equals("leixing")||s1.equals("jine")) {
-							sv = Integer.parseInt(s);
+							sv = new BigDecimal(s);
 						}
 
 						hashMap.put(map.get(integer), sv);

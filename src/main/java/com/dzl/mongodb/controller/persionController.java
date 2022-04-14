@@ -1,5 +1,6 @@
 package com.dzl.mongodb.controller;
 
+import com.dzl.mongodb.entity.ExpressEnum;
 import com.dzl.mongodb.entity.Head;
 import com.dzl.mongodb.entity.Rule;
 import com.dzl.mongodb.service.Impl.PService;
@@ -12,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,9 +40,22 @@ public class persionController {
 
     @GetMapping("/excel")
     public Map<String, Object> excel(@RequestParam(required = false) String fildName,
-                                     @RequestParam(required = false) String fildvalue
-                                     ) {
+                                     @RequestParam(required = false) String fildvalue) {
         return personService.excelShow(fildName, fildvalue);
+    }
+
+    @GetMapping("/expressEnum")
+    public List<Map<String, Object>>  excel() {
+        ExpressEnum[] values = ExpressEnum.values();
+        List<Map<String, Object>> arrayList = new ArrayList<>();
+        for (ExpressEnum value : values) {
+            Map<String, Object> hashMap = new HashMap<>();
+            hashMap.put("name",value.name());
+            hashMap.put("express",value.getExpress());
+            arrayList.add(hashMap);
+        }
+
+        return arrayList;
     }
 
 
