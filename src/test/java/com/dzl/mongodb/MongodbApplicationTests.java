@@ -17,6 +17,7 @@ import com.dzl.mongodb.util.OgnlUtil;
 import com.dzl.mongodb.util.Pinyin4jUtil;
 import com.github.jsonzou.jmockdata.JMockData;
 import com.google.common.collect.Lists;
+import com.googlecode.aviator.AviatorEvaluator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.ognl.OgnlException;
 import org.junit.jupiter.api.Test;
@@ -195,14 +196,9 @@ class MongodbApplicationTests {
 			data.forEach((integer, s) ->{
 						String s1 = map.get(integer);
 						Object sv = s;
-						if("CREATE_TIME".equals(s1)) {
-							SimpleDateFormat sdf =   new SimpleDateFormat( "yyyy/MM/dd HH:mm:ss" );
-							try {
-								sv = sdf.parse(s);
-							} catch (ParseException e) {
-								e.printStackTrace();
-							}
-						}
+                        if(s1.contains("jine")) {
+                            sv = new BigDecimal(s);
+                        }
 						hashMap.put(map.get(integer), sv);
 					}
 					 );
@@ -235,7 +231,7 @@ class MongodbApplicationTests {
 			data.forEach((integer, s) ->{
 						String s1 = map.get(integer);
 						Object sv = s;
-						if(s1.equals("leixing")||s1.equals("jine")) {
+						if(s1.contains("jine")) {
 							sv = new BigDecimal(s);
 						}
 
@@ -247,12 +243,13 @@ class MongodbApplicationTests {
 			for (Map.Entry<String, Head> headEntry : headMap.entrySet()) {
 				Head value = headEntry.getValue();
 				if(StringUtils.isNotBlank(value.getExpressions())){
-					Object value1 = OgnlUtil.getValue(value.getExpressions(), hashMap);
+                    System.out.println("执行表达式：" + value.getExpressions());
+					Object value1 = AviatorEvaluator.execute(value.getExpressions(), hashMap);
 					hashMap.put(headEntry.getKey(), value1);
 				}
 			}
 			hashMaps.add(hashMap);
-			System.out.println("读取到数据:{}"+ JSON.toJSONString(hashMap));
+			//System.out.println("读取到数据:{}"+ JSON.toJSONString(hashMap));
 		}
 		personService.saveMap(hashMaps);
 	}

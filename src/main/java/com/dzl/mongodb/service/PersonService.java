@@ -5,7 +5,9 @@ import com.dzl.mongodb.entity.Head;
 import com.dzl.mongodb.entity.Person;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
@@ -51,9 +53,15 @@ public interface PersonService {
 
     Map<String, Object> excelShow(String fildName, String fildValue);
 
+    void createHead(MultipartFile file) throws IOException;
+
+    void updateValues(MultipartFile file) throws IOException;
+
     List<Head> excelShowHead();
 
     Map<String, Head> excelMapHead();
 
     Head saveAndUpdate(Head head);
+
+    void excelOutput(HttpServletResponse response) throws IOException;
 }

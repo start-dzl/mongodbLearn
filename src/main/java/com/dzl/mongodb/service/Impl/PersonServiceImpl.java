@@ -4,17 +4,21 @@ import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.read.builder.ExcelReaderBuilder;
 import com.alibaba.excel.read.listener.ModelBuildEventListener;
 import com.alibaba.excel.read.listener.PageReadListener;
+import com.alibaba.excel.write.metadata.style.WriteCellStyle;
+import com.alibaba.excel.write.style.HorizontalCellStyleStrategy;
 import com.alibaba.fastjson.JSON;
 import com.dzl.mongodb.Listener.NoModleDataListener;
 import com.dzl.mongodb.Repository.ClasstRepository;
 import com.dzl.mongodb.Repository.PersonRepository;
 import com.dzl.mongodb.entity.*;
 import com.dzl.mongodb.service.PersonService;
+import com.dzl.mongodb.util.EasyExcelUtil;
 import com.dzl.mongodb.util.LookupLetPipelinesOperation;
 import com.dzl.mongodb.util.LookupSimLetPipelinesOperation;
 import com.dzl.mongodb.util.Pinyin4jUtil;
 import com.github.jsonzou.jmockdata.JMockData;
 import com.google.common.collect.Lists;
+import com.googlecode.aviator.AviatorEvaluator;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import org.apache.commons.lang3.StringUtils;
 import org.reflections.Reflections;
@@ -35,8 +39,11 @@ import org.springframework.data.mongodb.gridfs.GridFsResource;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StreamUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -288,6 +295,77 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
+    public void createHead(MultipartFile file) throws IOException {
+
+        // 这里 也可以不指定class，返回一个list，然后读取第一个sheet 同步读取会自动finish
+        NoModleDataListener dataListener = new NoModleDataListener();
+        ExcelReaderBuilder builder = EasyExcel.read(file.getInputStream(), dataListener);
+        //builder.ignoreEmptyRow(true);
+        List<Map<Integer, String>> listMap = builder.sheet().doReadSync();
+        Map<Integer, String> map = dataListener.head;
+        rebuildAll(map);
+        List<HashMap<String, Object>> hashMaps = new ArrayList<>();
+        for (Map<Integer, String> data : listMap) {
+            // 返回每条数据的键值对 表示所在的列 和所在列的值
+            HashMap<String, Object> hashMap = new HashMap<>();
+            data.forEach((integer, s) -> {
+                        String s1 = map.get(integer);
+                        Object sv = s;
+                        if (s1.contains("jine")) {
+                            sv = new BigDecimal(s);
+                        }
+                        hashMap.put(map.get(integer), sv);
+                    }
+            );
+            hashMap.put("_id", data.get(0));
+            hashMap.put("dept", (int) (1 + Math.random() * 10));
+            hashMaps.add(hashMap);
+            System.out.println("读取到数据:{}" + JSON.toJSONString(hashMap));
+        }
+        saveMap(hashMaps);
+    }
+
+    @Override
+    public void updateValues(MultipartFile file) throws IOException {
+
+        NoModleDataListener dataListener = new NoModleDataListener();
+        ExcelReaderBuilder builder = EasyExcel.read(file.getInputStream(), dataListener);
+        List<Map<Integer, String>> listMap = builder.sheet().doReadSync();
+        Map<Integer, String> map = dataListener.head;
+        rebuildNoSave(map);
+
+        Map<String, Head> headMap = excelMapHead();
+
+        List<HashMap<String, Object>> hashMaps = new ArrayList<>();
+        for (Map<Integer, String> data : listMap) {
+            // 返回每条数据的键值对 表示所在的列 和所在列的值
+            HashMap<String, Object> hashMap = new HashMap<>();
+            data.forEach((integer, s) -> {
+                        String s1 = map.get(integer);
+                        Object sv = s;
+                        if (s1.contains("jine")) {
+                            sv = new BigDecimal(s);
+                        }
+
+                        hashMap.put(map.get(integer), sv);
+                    }
+            );
+            hashMap.put("_id", data.get(0));
+            hashMap.put("dept", (int) (1 + Math.random() * 10));
+            for (Map.Entry<String, Head> headEntry : headMap.entrySet()) {
+                Head value = headEntry.getValue();
+                if (StringUtils.isNotBlank(value.getExpressions())) {
+                    System.out.println("执行表达式：" + value.getExpressions());
+                    Object value1 = AviatorEvaluator.execute(value.getExpressions(), hashMap);
+                    hashMap.put(headEntry.getKey(), value1);
+                }
+            }
+            hashMaps.add(hashMap);
+        }
+        saveMap(hashMaps);
+    }
+
+    @Override
     public List<Head> excelShowHead() {
         Query query = new Query();
         query.with(Sort.by("order"));
@@ -300,7 +378,7 @@ public class PersonServiceImpl implements PersonService {
                     if (!Objects.isNull(express.getExpressEnum())) {
                         express.setName(express.getExpressEnum().getExpress());
                         express.setPinyin(express.getExpressEnum().getExpress());
-                    } else if(StringUtils.isNotBlank(express.getId())){
+                    } else if (StringUtils.isNotBlank(express.getId())) {
                         Head template = mongoTemplate.findById(express.getId(), Head.class);
                         if (!Objects.isNull(template)) {
                             express.setName(template.getName());
@@ -370,6 +448,22 @@ public class PersonServiceImpl implements PersonService {
         return mongoTemplate.save(head);
     }
 
+    @Override
+    public void excelOutput(HttpServletResponse response) throws IOException {
+        List<Map> maps = mongoTemplate.findAll(Map.class, "excelt");
+        List<Head> heads = excelShowHead();
+        Object[] values = heads.stream().map(Head::getPinyin).toArray();
+        Object[] names = heads.stream().map(Head::getName).toArray();
+
+        WriteCellStyle headWriteCellStyle = EasyExcelUtil.getHeadStyle();
+        HorizontalCellStyleStrategy horizontalCellStyleStrategy =
+                new HorizontalCellStyleStrategy(headWriteCellStyle, new WriteCellStyle());
+
+        EasyExcel.write(response.getOutputStream())
+                .registerWriteHandler(horizontalCellStyleStrategy)
+                .head(head(names)).sheet("模板").doWrite(dataListOut(values, maps));
+    }
+
 
     private List<Map<String, Object>> dataList(Object[] values, List<Map> maps) {
         List<Map<String, Object>> list = new ArrayList<>();
@@ -386,6 +480,22 @@ public class PersonServiceImpl implements PersonService {
         return list;
     }
 
+    private List<List<Object>> dataListOut(Object[] values, List<Map> maps) {
+        List<List<Object>> list = new ArrayList<List<Object>>();
+        for (int i = 0; i < maps.size(); i++) {
+            List<Object> data = new ArrayList<Object>();
+            Map map = maps.get(i);
+            for (int j = 0; j < values.length; j++) {
+                Object value = values[j];
+                Object o = map.get(value);
+                data.add(o);
+            }
+            list.add(data);
+        }
+        return list;
+    }
+
+
     private List<Map<String, Object>> rebuild(Map<Integer, String> map) {
         List<Map<String, Object>> arrayList = new ArrayList<>();
         for (Integer integer : map.keySet()) {
@@ -399,5 +509,44 @@ public class PersonServiceImpl implements PersonService {
             arrayList.add(hashMap);
         }
         return arrayList;
+    }
+
+    private void rebuildAll(Map<Integer, String> map) {
+
+        mongoTemplate.dropCollection(Head.class);
+        List<Head> heads = Lists.newArrayList();
+        for (Integer integer : map.keySet()) {
+            String headName = map.get(integer);
+            String converter = Pinyin4jUtil.firstConverterToSpell(headName);
+            map.put(integer, converter);
+            Head head = new Head();
+            head.setName(headName);
+            head.setPinyin(converter);
+            head.setOrder(integer);
+            heads.add(head);
+            mongoTemplate.save(head);
+        }
+
+    }
+
+    private void rebuildNoSave(Map<Integer, String> map) {
+
+        for (Integer integer : map.keySet()) {
+            String headName = map.get(integer);
+            String converter = Pinyin4jUtil.firstConverterToSpell(headName);
+            map.put(integer, converter);
+        }
+
+    }
+
+    private List<List<String>> head(Object[] values) {
+        List<List<String>> list = new ArrayList<List<String>>();
+        for (int i = 0; i < values.length; i++) {
+            String value = values[i].toString();
+            List<String> head0 = new ArrayList<String>();
+            head0.add(value);
+            list.add(head0);
+        }
+        return list;
     }
 }

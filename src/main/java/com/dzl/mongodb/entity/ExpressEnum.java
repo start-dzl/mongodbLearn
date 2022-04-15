@@ -14,7 +14,17 @@ public enum ExpressEnum {
 
     LEFT_BRACKET("("),
 
-    RIGHT_BRACKET(")");
+    RIGHT_BRACKET(")"),
+
+    QUESTION("?"),
+
+    GT("<"),
+
+    LT(">"),
+
+    COLON(":"),
+
+    eq("=");
 
     private String express;
 

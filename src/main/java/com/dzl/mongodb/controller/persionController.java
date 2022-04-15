@@ -10,9 +10,12 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,6 +46,24 @@ public class persionController {
                                      @RequestParam(required = false) String fildvalue) {
         return personService.excelShow(fildName, fildvalue);
     }
+
+    @GetMapping("/excel/output")
+    public void excelOutput(HttpServletResponse response) throws IOException {
+        response.setContentType("application/vnd.ms-excel");
+        response.setCharacterEncoding("utf-8");
+        personService.excelOutput(response);
+    }
+
+    @PostMapping("/excel")
+    public void excelPost(MultipartFile file) throws IOException {
+         personService.createHead(file);
+    }
+
+    @PostMapping("/excel/update")
+    public void updateValues(MultipartFile file) throws IOException {
+        personService.updateValues(file);
+    }
+
 
     @GetMapping("/expressEnum")
     public List<Map<String, Object>>  excel() {

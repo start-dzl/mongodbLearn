@@ -99,7 +99,7 @@ public class OgnlUtil {
         System.out.println(re);
         Map map = new HashMap();
         map.put("user", "Keven");
-        BigDecimal bigDecimal = new BigDecimal("50");
+        BigDecimal bigDecimal = new BigDecimal("0");
         bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP);
         map.put("a",bigDecimal);
         map.put("b", null);
@@ -110,8 +110,8 @@ public class OgnlUtil {
         list.add("BPM2");
         Classt classt = new Classt();
         map.put("classt",classt);
-        System.out.println(OgnlUtil.getValue("a/(3.06+a)", map));
-        System.out.println(AviatorEvaluator.execute("g=a/(3.06+a)", map));
+        //System.out.println(OgnlUtil.getValue("a/(3.06+a)", map));
+        System.out.println(AviatorEvaluator.execute("(a<5 ? 10:a*0.3)", map));
         System.out.println(AviatorEvaluator.execute("classt.num=3", map));
         System.out.println(classt.toString());
         System.out.println(OgnlUtil.getValue("a*0.75", map));
