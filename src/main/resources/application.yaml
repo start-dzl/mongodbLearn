@@ -16,3 +16,19 @@ spring:
       multipart:
         max-file-size: 10000MB
         max-request-size: 100000MB
+  kafka:
+    # kafka服务地址
+    bootstrap-servers: 106.14.27.212:19004
+    consumer:
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: cn.myfw.entity
+      # 消费者组
+      group-id: test-consumer-group
+      # 消费者消息value反序列化方式
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      # 消费者消息value反序列化方式
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      auto-offset-reset: earliest
