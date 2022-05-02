@@ -41,6 +41,11 @@ public class persionController {
         return "ok";
     }
 
+    @GetMapping("/health/ready")
+    public String ready() {
+        return "ok";
+    }
+
     @GetMapping("/excel")
     public Map<String, Object> excel(@RequestParam(required = false) String fildName,
                                      @RequestParam(required = false) String fildvalue) {
