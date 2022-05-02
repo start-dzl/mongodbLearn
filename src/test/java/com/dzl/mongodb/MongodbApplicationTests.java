@@ -12,6 +12,7 @@ import com.dzl.mongodb.entity.Head;
 import com.dzl.mongodb.entity.Person;
 import com.dzl.mongodb.service.PersonService;
 import com.dzl.mongodb.strategy.ExcelWidthStyleStrategy;
+import com.dzl.mongodb.strategy.MyMergeStrategy;
 import com.dzl.mongodb.util.EasyExcelUtil;
 import com.dzl.mongodb.util.OgnlUtil;
 import com.dzl.mongodb.util.Pinyin4jUtil;
@@ -318,6 +319,14 @@ class MongodbApplicationTests {
         Head head = JMockData.mock(Head.class);
         System.out.printf(head.toString());
     }
+
+	@Test
+	public void myMergeStrategyTest() {
+		String fileName = "mergeWrite" + System.currentTimeMillis() + ".xlsx";
+		MyMergeStrategy myMergeStrategy = new MyMergeStrategy(null, null);
+		EasyExcel.write(fileName, Map.class).registerWriteHandler(myMergeStrategy)
+				.sheet("sheet名称");
+	}
 
 	private List<List<String>> head(Object[] values) {
 		List<List<String>> list = new ArrayList<List<String>>();
