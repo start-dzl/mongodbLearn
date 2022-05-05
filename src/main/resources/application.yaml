@@ -3,6 +3,8 @@ logging:
   level:
     org.springframework.data.mongodb.core: debug
 spring:
+  profiles:
+    active: dev
   data:
     mongodb:
       database: "learn"

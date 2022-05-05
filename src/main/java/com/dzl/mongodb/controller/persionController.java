@@ -51,6 +51,7 @@ public class persionController {
     public void excelOutput(HttpServletResponse response) throws IOException {
         response.setContentType("application/vnd.ms-excel");
         response.setCharacterEncoding("utf-8");
+        response.setHeader("Content-disposition", "attachment;filename=" + "test" + ".xlsx");
         personService.excelOutput(response);
     }
 

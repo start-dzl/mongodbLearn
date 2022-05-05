@@ -4,6 +4,10 @@ import com.alibaba.excel.write.metadata.style.WriteCellStyle;
 import com.alibaba.excel.write.metadata.style.WriteFont;
 import org.apache.poi.ss.usermodel.*;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
+
 public class EasyExcelUtil {
 
     public static WriteCellStyle getHeadStyle() {
@@ -33,6 +37,18 @@ public class EasyExcelUtil {
         //headWriteCellStyle.setShrinkToFit(true);//设置文本收缩至合适
 
         return headWriteCellStyle;
+    }
+
+    public static List<WriteCellStyle> getWriteCellStyle(List<String> cellDataTypes) {
+        List<WriteCellStyle> list = new ArrayList<>();
+        for (String cellDataType : cellDataTypes) {
+            // 头的策略
+            WriteCellStyle writeCellStyle = new WriteCellStyle();
+            writeCellStyle.setFillForegroundColor(IndexedColors.BLUE.getIndex());
+            list.add(writeCellStyle);
+        }
+
+        return list;
     }
 
 }

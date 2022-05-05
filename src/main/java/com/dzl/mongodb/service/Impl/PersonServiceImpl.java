@@ -12,10 +12,7 @@ import com.dzl.mongodb.Repository.ClasstRepository;
 import com.dzl.mongodb.Repository.PersonRepository;
 import com.dzl.mongodb.entity.*;
 import com.dzl.mongodb.service.PersonService;
-import com.dzl.mongodb.util.EasyExcelUtil;
-import com.dzl.mongodb.util.LookupLetPipelinesOperation;
-import com.dzl.mongodb.util.LookupSimLetPipelinesOperation;
-import com.dzl.mongodb.util.Pinyin4jUtil;
+import com.dzl.mongodb.util.*;
 import com.github.jsonzou.jmockdata.JMockData;
 import com.google.common.collect.Lists;
 import com.googlecode.aviator.AviatorEvaluator;
@@ -454,13 +451,14 @@ public class PersonServiceImpl implements PersonService {
         List<Head> heads = excelShowHead();
         Object[] values = heads.stream().map(Head::getPinyin).toArray();
         Object[] names = heads.stream().map(Head::getName).toArray();
-
         WriteCellStyle headWriteCellStyle = EasyExcelUtil.getHeadStyle();
+
         HorizontalCellStyleStrategy horizontalCellStyleStrategy =
                 new HorizontalCellStyleStrategy(headWriteCellStyle, new WriteCellStyle());
-
+        ExcelCellStyleStrategy styleStrategy = new ExcelCellStyleStrategy();
         EasyExcel.write(response.getOutputStream())
                 .registerWriteHandler(horizontalCellStyleStrategy)
+                .registerWriteHandler(styleStrategy)
                 .head(head(names)).sheet("模板").doWrite(dataListOut(values, maps));
     }
 
