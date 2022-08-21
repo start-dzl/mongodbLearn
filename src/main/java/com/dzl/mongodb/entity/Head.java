@@ -4,10 +4,12 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Date;
 import java.util.List;
 
 @Data
 @Document("head")
+@org.springframework.data.elasticsearch.annotations.Document(indexName = "head")
 public class Head {
 
     @Id
@@ -22,5 +24,7 @@ public class Head {
     private String expressions;
 
     private List<HeadExpress> expresses;
+
+    private Date time;
 
 }

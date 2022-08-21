@@ -3,6 +3,9 @@ logging:
   level:
     org.springframework.data.mongodb.core: debug
 spring:
+  elasticsearch:
+    uris: https://127.0.0.1:9200
+    socket-timeout: "10s"
   data:
     mongodb:
       database: "learn"
