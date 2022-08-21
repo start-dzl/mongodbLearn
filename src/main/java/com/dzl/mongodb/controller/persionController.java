@@ -8,6 +8,8 @@ import com.dzl.mongodb.service.PersonService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -57,6 +59,7 @@ public class persionController {
 
     @PostMapping("/excel")
     public void excelPost(MultipartFile file) throws IOException {
+
          personService.createHead(file);
     }
 
