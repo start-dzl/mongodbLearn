@@ -3,8 +3,10 @@ package com.dzl.mongodb.controller;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.read.builder.ExcelReaderBuilder;
 import com.alibaba.fastjson.JSON;
+import com.dzl.mongodb.entity.Person;
 import com.dzl.mongodb.mapper.MbMapper;
 import io.swagger.annotations.ApiOperation;
+import org.casbin.jcasbin.main.Enforcer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +25,27 @@ public class mbController {
 
     @Autowired
     private MbMapper mbMapper;
+
+    @Autowired
+    private Enforcer enforcer;
+
+    @GetMapping("/auth")
+    public String auth(Long id) {
+        Person person = new Person();
+        person.setName("alice");
+        Person sub = person; // 想要访问资源的用户
+        Object obj = "data1"; // 将要被访问的资源
+        Object act = "read"; // 用户对资源进行的操作
+
+        if (enforcer.enforce(sub, obj, act)) {
+           return "pass";
+        } else {
+            return "fail";
+            // 拒绝请求，抛出异常
+        }
+
+    }
+
 
     @GetMapping("/mb")
     public Map list(Long id) {

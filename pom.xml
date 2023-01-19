@@ -138,6 +138,13 @@
 			<version>3.7</version>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/org.casbin/jcasbin -->
+		<dependency>
+			<groupId>org.casbin</groupId>
+			<artifactId>jcasbin</artifactId>
+			<version>1.31.3</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
