@@ -6,6 +6,9 @@ import com.alibaba.fastjson.JSON;
 import com.dzl.mongodb.entity.Person;
 import com.dzl.mongodb.mapper.MbMapper;
 import io.swagger.annotations.ApiOperation;
+import org.apache.poi.hwpf.extractor.WordExtractor;
+import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.casbin.jcasbin.main.Enforcer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -14,6 +17,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,11 +28,18 @@ import java.util.Map;
 @RequestMapping("/mb")
 public class mbController {
 
+
     @Autowired
     private MbMapper mbMapper;
 
     @Autowired
     private Enforcer enforcer;
+
+
+
+
+
+
 
     @GetMapping("/auth")
     public String auth(Long id) {
