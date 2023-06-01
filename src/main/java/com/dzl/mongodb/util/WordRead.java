@@ -380,15 +380,15 @@ public class WordRead {
     public static String readWordImgToHtml(String filePath) throws IOException, InvalidFormatException, GeneralSecurityException {
 //        Biff8EncryptionKey.setCurrentUserPassword("11");
 
-        POIFSFileSystem fs = new POIFSFileSystem();
+//        POIFSFileSystem fs = new POIFSFileSystem();
+//
+//        EncryptionInfo info = new EncryptionInfo(EncryptionMode.standard);
+//        Encryptor encryptor = info.getEncryptor();
+//
+//        OPCPackage opc = OPCPackage.open(new FileInputStream(filePath));
+//        opc.save(encryptor.getDataStream(fs));
 
-        EncryptionInfo info = new EncryptionInfo(EncryptionMode.standard);
-        Encryptor encryptor = info.getEncryptor();
-
-        OPCPackage opc = OPCPackage.open(new FileInputStream(filePath));
-        opc.save(encryptor.getDataStream(fs));
-
-        XWPFDocument document = new XWPFDocument(opc);
+        XWPFDocument document = new XWPFDocument(new FileInputStream(filePath));
         String htmlText="";
         try {
             // 获取word中的所有段落与表格
@@ -420,7 +420,7 @@ public class WordRead {
             e.printStackTrace();
         }finally{
             document.close();
-            opc.close();
+
         }
         return htmlText;
     }

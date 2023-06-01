@@ -30,6 +30,7 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
+import com.spire.doc.*;
 
 @SpringBootTest
 class YamlTests {
@@ -114,6 +115,18 @@ class YamlTests {
 			e.printStackTrace();
 		}
 		System.out.println(JSON.toJSON(result));
+	}
+
+    @Test
+	public  void tv() {
+		//实例化Document类的对象
+		Document doc = new Document();
+
+		//加载Word
+		doc.loadFromFile("E:\\data\\q.docx", FileFormat.Auto, "11");
+
+		//保存为PDF格式
+		doc.saveToFile("E:\\data\\WordToPDF.pdf",FileFormat.PDF);
 	}
 
 

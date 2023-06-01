@@ -17,6 +17,12 @@
         <java.version>8</java.version>
         <docker.image.prefix>dzlxxh</docker.image.prefix>
     </properties>
+    <repositories>
+        <repository>
+            <id>com.e-iceblue</id>
+            <url>https://repo.e-iceblue.cn/repository/maven-public/</url>
+        </repository>
+    </repositories>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -77,6 +83,12 @@
             <groupId>org.apache.pdfbox</groupId>
             <artifactId>pdfbox-tools</artifactId>
             <version>2.0.28</version>
+        </dependency>
+
+        <dependency>
+            <groupId>e-iceblue</groupId>
+            <artifactId>spire.doc.free</artifactId>
+            <version>5.2.0</version>
         </dependency>
 
 
